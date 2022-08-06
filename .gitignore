@@ -5,6 +5,3 @@ node_modules
 # Editor directories and files
 .idea
 .vscode
-
-#Electron-builder output
-/dist_electron
