@@ -20,10 +20,8 @@ webSocketServer.on('connection', (webSocket: any) => {
 
     webSocket.on('message', function incoming(message: string) { // Incoming
         webSocketServer.clients.forEach((client: any) => {
-            incomingChecks(JSON.parse(message));
             if (client !== webSocket && client.readyState === webSocket.OPEN) {
-                // Send a response based on the JSON data
-                client.send('this is a test and will in the future be a response')
+                client.send(message)
             }
         })
     })
@@ -49,8 +47,8 @@ socket.addEventListener('error', function (event: any) {
     console.log("Client Error: ", event);
 });
 
-socket.addEventListener('message', function (event: any) {
-    console.log(event.data);
+socket.addEventListener('message', function (event: string) {
+    incomingChecks(JSON.parse(event));
 });
 
 const sendMessage = (message: string) => {
@@ -83,26 +81,6 @@ export function incomingChecks(input: socketResponseLayout) {
     } else if(input.header === 'CURRENT-MEMORY-USAGE') {
 
     } else if(input.header === 'CURRENT-CPU-USAGE') {
-
-    }
-}
-
-export function outgoingChecks(input: socketResponseLayout) {
-    if(input.header === 'CONSOLE-INFORMATION') {
-
-    } else if(input.header === 'CONSOLE-ERROR') {
-
-    } else if(input.header === 'SYSTEM-TOTAL-MEMORY-NUMBER') {
-
-    } else if(input.header === 'SYSTEM-USED-MEMORY-NUMBER') {
-
-    } else if(input.header === 'SYSTEM-REGISTERED-PROGRAM-INFORMATION') {
-
-    } else if(input.header === 'CURRENT-INCOMING-TRAFFIC-NUMBER') {
-
-    } else if(input.header === 'CURRENT-MEMORY-USAGE-NUMBER') {
-
-    } else if(input.header === 'CURRENT-CPU-USAGE-NUMBER') {
 
     }
 }
