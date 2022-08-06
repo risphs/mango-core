@@ -3,7 +3,7 @@ const express = require('express');
 const webSocket = require('ws');
 
 const app = express()
-let port = 8080;
+let port = 8000;
 
 const server = http.createServer(app);
 const webSocketServer = new webSocket.Server({ server: server });
@@ -23,6 +23,6 @@ webSocketServer.on('connection', (webSocket: any) => {
 
 })
 
-app.get('/', (req: any, res: any) => res.send('Hello World!'))
+app.get('/', (req: any, res: any) => res.send('Hello World'))
 
 server.listen(port, () => console.log(`Server listening on port ${port}`))
