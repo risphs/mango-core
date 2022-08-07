@@ -1,3 +1,4 @@
+const osUtil = require('os-utils')
 const http = require('http');
 const express = require('express');
 const webSocket = require('ws');
@@ -15,8 +16,9 @@ interface socketResponseLayout {
     body: String
 }
 
+
 webSocketServer.on('connection', (webSocket: any) => {
-    webSocket.send('Connected to the WebSocket server');
+    console.log('User connected')
 
     webSocket.on('message', function incoming(message: string) { // Incoming
         webSocketServer.clients.forEach((client: any) => {
@@ -61,15 +63,18 @@ SYSTEM-VIEW-LOGS ~ KEEP IN MIND IDEA OF LOGS
 
 
 
-export function incomingChecks(input: socketResponseLayout) {
+function incomingChecks(input: socketResponseLayout) {
     if(input.header === 'CONSOLE-RUN') {
 
     } else if(input.header === 'CONSOLE-GET-TEXT') {
 
     } else if(input.header === 'SYSTEM-TOTAL-MEMORY') {
-
+        const sendingForm: socketResponseLayout = { header: 'SYSTEM-TOTAL-MEMORY-NUMBER', body: osUtil.totalmem() }
+        sendMessage(JSON.stringify(sendingForm))
     } else if(input.header === 'SYSTEM-USED-MEMORY') {
-
+        const sendingForm: socketResponseLayout = { header: 'SYSTEM-USED-MEMORY-NUMBER', body: `${osUtil.totalmem() - osUtil.freemem()}` }
+        console.log(sendingForm);
+        sendMessage(JSON.stringify(sendingForm))
     } else if(input.header === 'SYSTEM-REGISTERED-PROGRAM') {
 
     } else if(input.header === 'SYSTEM-RESTART') {
@@ -78,9 +83,11 @@ export function incomingChecks(input: socketResponseLayout) {
 
     } else if(input.header === 'CURRENT-INCOMING-TRAFFIC') {
 
-    } else if(input.header === 'CURRENT-MEMORY-USAGE') {
-
+    } else if(input.header === 'FREE-MEMORY') {
+        const sendingForm: socketResponseLayout = { header: 'SYSTEM-TOTAL-MEMORY-NUMBER', body: osUtil.freemem() }
+        sendMessage(JSON.stringify(sendingForm))
     } else if(input.header === 'CURRENT-CPU-USAGE') {
-
+        const sendingForm: socketResponseLayout = { header: 'CURRENT-CPU-USAGE-NUMBER', body: osUtil.cpuUsage() }
+        sendMessage(JSON.stringify(sendingForm))
     }
 }
