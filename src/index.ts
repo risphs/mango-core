@@ -18,13 +18,13 @@ interface socketResponseLayout {
 }
 
 
-webSocketServer.on('connection', (webSocket: any) => {
+webSocketServer.on('connection', function connection(webSocket) {
     console.log('User connected')
 
-    webSocket.on('message', function incoming(message: string) { // Incoming
-        webSocketServer.clients.forEach((client: any) => {
+    webSocket.on('message', function incoming(message: String) { // Incoming
+        webSocketServer.clients.forEach(function each(client) {
             if (client !== webSocket && client.readyState === webSocket.OPEN) {
-                client.send(message)
+                client.send(`${message}`);
             }
         })
     })
@@ -55,7 +55,8 @@ socket.addEventListener('message', function (event) {
     incomingChecks(incoming);
 });
 
-const sendMessage = (message: string) => {
+const sendMessage = (message: String) => {
+    console.log("Sending Message: " + message)
     socket.send(message);
 }
 
@@ -79,12 +80,12 @@ function incomingChecks(input: socketResponseLayout) {
         })
 
     } else if(input.header === 'SYSTEM-TOTAL-MEMORY') {
-        const sendingForm: socketResponseLayout = { header: 'SYSTEM-TOTAL-MEMORY-NUMBER', body: osUtil.totalmem() }
+        const osUtilString: String = osUtil.totalmem().toString();
+        const sendingForm: socketResponseLayout = { header: 'SYSTEM-TOTAL-MEMORY', body: osUtilString }
         const message = JSON.stringify(sendingForm);
         sendMessage(message);
     } else if(input.header === 'SYSTEM-USED-MEMORY') {
-        const sendingForm: socketResponseLayout = { header: 'SYSTEM-USED-MEMORY-NUMBER', body: `${osUtil.totalmem() - osUtil.freemem()}` }
-        console.log(sendingForm);
+        const sendingForm: socketResponseLayout = { header: 'SYSTEM-USED-MEMORY', body: `${osUtil.totalmem() - osUtil.freemem()}` }
         sendMessage(JSON.stringify(sendingForm))
     } else if(input.header === 'SYSTEM-REGISTERED-PROGRAM') {
 
@@ -100,5 +101,7 @@ function incomingChecks(input: socketResponseLayout) {
     } else if(input.header === 'CURRENT-CPU-USAGE') {
         const sendingForm: socketResponseLayout = { header: 'CURRENT-CPU-USAGE-NUMBER', body: osUtil.cpuUsage() }
         sendMessage(JSON.stringify(sendingForm))
+    } else {
+        return console.log('Invalid header: ', input.header);
     }
 }
