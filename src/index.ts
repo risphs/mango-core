@@ -19,7 +19,7 @@ interface socketResponseLayout {
 
 
 webSocketServer.on('connection', function connection(webSocket) {
-    console.log('User connected')
+    console.log('A user has connected to the WebSocket Server');
 
     webSocket.on('message', function incoming(message: String) { // Incoming
         webSocketServer.clients.forEach(function each(client) {
@@ -81,11 +81,11 @@ function incomingChecks(input: socketResponseLayout) {
 
     } else if(input.header === 'SYSTEM-TOTAL-MEMORY') {
         const osUtilString: String = osUtil.totalmem().toString();
-        const sendingForm: socketResponseLayout = { header: 'SYSTEM-TOTAL-MEMORY', body: osUtilString }
+        const sendingForm: socketResponseLayout = { header: 'SYSTEM-TOTAL-MEMORY-NUMBER', body: osUtilString }
         const message = JSON.stringify(sendingForm);
         sendMessage(message);
     } else if(input.header === 'SYSTEM-USED-MEMORY') {
-        const sendingForm: socketResponseLayout = { header: 'SYSTEM-USED-MEMORY', body: `${osUtil.totalmem() - osUtil.freemem()}` }
+        const sendingForm: socketResponseLayout = { header: 'SYSTEM-USED-MEMORY-NUMBER', body: `${osUtil.totalmem() - osUtil.freemem()}` }
         sendMessage(JSON.stringify(sendingForm))
     } else if(input.header === 'SYSTEM-REGISTERED-PROGRAM') {
 
@@ -96,7 +96,7 @@ function incomingChecks(input: socketResponseLayout) {
     } else if(input.header === 'CURRENT-INCOMING-TRAFFIC') {
 
     } else if(input.header === 'FREE-MEMORY') {
-        const sendingForm: socketResponseLayout = { header: 'SYSTEM-TOTAL-MEMORY-NUMBER', body: osUtil.freemem() }
+        const sendingForm: socketResponseLayout = { header: 'FREE-MEMORY-NUMBER', body: osUtil.freemem() }
         sendMessage(JSON.stringify(sendingForm))
     } else if(input.header === 'CURRENT-CPU-USAGE') {
         const sendingForm: socketResponseLayout = { header: 'CURRENT-CPU-USAGE-NUMBER', body: osUtil.cpuUsage() }
