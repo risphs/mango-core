@@ -2,6 +2,7 @@ const osUtil = require('os-utils')
 const http = require('http');
 const express = require('express');
 const webSocket = require('ws');
+const { exec } = require('child_process');
 
 const app = express()
 let port: Number = 8000;
@@ -65,8 +66,16 @@ SYSTEM-VIEW-LOGS ~ KEEP IN MIND IDEA OF LOGS
 
 function incomingChecks(input: socketResponseLayout) {
     if(input.header === 'CONSOLE-RUN') {
-
-    } else if(input.header === 'CONSOLE-GET-TEXT') {
+        // Run a command in the console and return the output of the console
+        exec(input.body, (error, output) => {
+            if(error) {
+                const sendingFormat: socketResponseLayout = { header: 'CONSOLE-ERROR', body: error };
+                sendMessage(JSON.stringify(sendingFormat));
+                return;
+            }
+            const sendingForm: socketResponseLayout = { header: 'CONSOLE-INFORMATION', body: output };
+            sendMessage(JSON.stringify(sendingForm));
+        })
 
     } else if(input.header === 'SYSTEM-TOTAL-MEMORY') {
         const sendingForm: socketResponseLayout = { header: 'SYSTEM-TOTAL-MEMORY-NUMBER', body: osUtil.totalmem() }
