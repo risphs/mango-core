@@ -1,9 +1,11 @@
 const osUtil = require('os-utils')
+const os = require('os');
 const http = require('http');
 const express = require('express');
 const webSocket = require('ws');
 const { promisify } = require('util');
 const exec = promisify(require('child_process').exec);
+const diskspace = require('diskspace');
 
 const app = express()
 let port: Number = 8000;
@@ -80,13 +82,17 @@ async function incomingChecks(input: socketResponseLayout) {
         sendMessage(JSON.stringify(sendingForm))
 
     } else if(input.header === 'SYSTEM-TOTAL-MEMORY') {
-        const osUtilString: String = osUtil.totalmem().toString();
-        const sendingForm: socketResponseLayout = { header: 'SYSTEM-TOTAL-MEMORY-NUMBER', body: osUtilString }
-        const message = JSON.stringify(sendingForm);
-        sendMessage(message);
+        diskspace.check('/', function(err, result) {
+            const sendingForm: socketResponseLayout = { header: 'SYSTEM-TOTAL-MEMORY-NUMBER', body: result.total }
+            const message = JSON.stringify(sendingForm);
+            sendMessage(message);
+        })
     } else if(input.header === 'SYSTEM-USED-MEMORY') {
-        const sendingForm: socketResponseLayout = { header: 'SYSTEM-USED-MEMORY-NUMBER', body: `${osUtil.totalmem() - osUtil.freemem()}` }
-        sendMessage(JSON.stringify(sendingForm))
+        diskspace.check('/', function(err, result) {
+            const sendingForm: socketResponseLayout = { header: 'SYSTEM-USED-MEMORY-NUMBER', body: result.used }
+            const message = JSON.stringify(sendingForm);
+            sendMessage(message);
+        })
     } else if(input.header === 'SYSTEM-REGISTERED-PROGRAM') {
 
     } else if(input.header === 'SYSTEM-RESTART') {
@@ -96,12 +102,16 @@ async function incomingChecks(input: socketResponseLayout) {
     } else if(input.header === 'CURRENT-INCOMING-TRAFFIC') {
 
     } else if(input.header === 'FREE-MEMORY') {
-        const sendingForm: socketResponseLayout = { header: 'FREE-MEMORY-NUMBER', body: osUtil.freemem() }
-        sendMessage(JSON.stringify(sendingForm))
+        diskspace.check('/', function(err, result) {
+            const sendingForm: socketResponseLayout = { header: 'FREE-MEMORY-NUMBER', body: result.free }
+            const message = JSON.stringify(sendingForm);
+            sendMessage(message);
+        })
     } else if(input.header === 'CURRENT-CPU-USAGE') {
-        const sendingForm: socketResponseLayout = { header: 'CURRENT-CPU-USAGE-NUMBER', body: osUtil.cpuUsage() }
+        const sendingForm: socketResponseLayout = { header: 'CURRENT-CPU-USAGE-NUMBER', body: process.cpuUsage().toString() }
         sendMessage(JSON.stringify(sendingForm))
     } else {
-        return console.log('Invalid header: ', input.header);
+        const sendingForm: socketResponseLayout = { header: 'ERROR', body: `INVALD HEADER: ${input.header}` }
+        sendMessage(JSON.stringify(sendingForm))
     }
 }
