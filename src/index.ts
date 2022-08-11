@@ -2,7 +2,8 @@ const osUtil = require('os-utils')
 const http = require('http');
 const express = require('express');
 const webSocket = require('ws');
-const exec = require('child_process').exec;
+const { promisify } = require('util');
+const exec = promisify(require('child_process').exec);
 
 const app = express()
 let port: Number = 8000;
@@ -64,20 +65,19 @@ const sendMessage = (message: String) => {
 SYSTEM-VIEW-LOGS ~ KEEP IN MIND IDEA OF LOGS
 */
 
+// let commandOutput;
 
+// async function executeCommand(command: String) {
+//     const execution = await exec(command);
+//     commandOutput = execution.stdout;
+// }
 
-function incomingChecks(input: socketResponseLayout) {
+async function incomingChecks(input: socketResponseLayout) {
     if(input.header === 'CONSOLE-RUN') {
-        // Run a command in the console and return the output of the console
-        exec(input.body, (error, output) => {
-            if(error) {
-                const sendingFormat: socketResponseLayout = { header: 'CONSOLE-ERROR', body: error };
-                sendMessage(JSON.stringify(sendingFormat));
-                return;
-            }
-            const sendingForm: socketResponseLayout = { header: 'CONSOLE-INFORMATION', body: output };
-            sendMessage(JSON.stringify(sendingForm));
-        })
+        const execution = await exec(input.body);
+
+        const sendingForm: socketResponseLayout = { header: 'CONSOLE-INFORMATION', body: execution.stdout };
+        sendMessage(JSON.stringify(sendingForm))
 
     } else if(input.header === 'SYSTEM-TOTAL-MEMORY') {
         const osUtilString: String = osUtil.totalmem().toString();
