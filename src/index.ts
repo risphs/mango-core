@@ -2,7 +2,7 @@ const osUtil = require('os-utils')
 const http = require('http');
 const express = require('express');
 const webSocket = require('ws');
-const { exec } = require('child_process');
+const exec = require('child_process').exec;
 
 const app = express()
 let port: Number = 8000;
@@ -50,8 +50,9 @@ socket.addEventListener('error', function (event: any) {
     console.log("Client Error: ", event);
 });
 
-socket.addEventListener('message', function (event: string) {
-    incomingChecks(JSON.parse(event));
+socket.addEventListener('message', function (event) {
+    const incoming: socketResponseLayout = JSON.parse(event.data);
+    incomingChecks(incoming);
 });
 
 const sendMessage = (message: string) => {
@@ -79,7 +80,8 @@ function incomingChecks(input: socketResponseLayout) {
 
     } else if(input.header === 'SYSTEM-TOTAL-MEMORY') {
         const sendingForm: socketResponseLayout = { header: 'SYSTEM-TOTAL-MEMORY-NUMBER', body: osUtil.totalmem() }
-        sendMessage(JSON.stringify(sendingForm))
+        const message = JSON.stringify(sendingForm);
+        sendMessage(message);
     } else if(input.header === 'SYSTEM-USED-MEMORY') {
         const sendingForm: socketResponseLayout = { header: 'SYSTEM-USED-MEMORY-NUMBER', body: `${osUtil.totalmem() - osUtil.freemem()}` }
         console.log(sendingForm);
